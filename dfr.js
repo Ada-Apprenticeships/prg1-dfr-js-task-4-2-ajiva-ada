@@ -103,7 +103,21 @@ function flatten(dataframe) {
 }
 
 function loadCSV(csvFile, ignoreRows, ignoreCols) {
+  if (!fs.existsSync(csvFile)) { //checks if it exists already
+    return [[], -1, -1];
+  }
+  const data = fs.readFileSync(csvFile, 'utf-8').trim().split('\n').map(row => row.split(',')); //read through, trim and split 
+//calculate no rows and columns after removing 
+  const totalRows = data.length - ignoreRows.length;
+  const totalCols = data[0].length - ignoreCols.length; 
+//create final dataframe 
+  const dataframe = data
+    .filter((_, rowIndex) => !ignoreRows.includes(rowIndex))
+    .map(row => row.filter((_, colIndex) => !ignoreCols.includes(colIndex)));
+
+  return [dataframe, totalRows, totalCols];
 }
+module.exports = loadCSV;
 
 
 function createSlice(dataframe, columnIndex, pattern, exportColumns = []) {
