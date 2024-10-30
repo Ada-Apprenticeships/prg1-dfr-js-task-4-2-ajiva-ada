@@ -76,15 +76,33 @@ function calculateMedian(dataset) {
 }
 
 function convertToNumber(dataframe, col) {
+  let count = 0;
   
+  for (let i = 0; i < dataframe.length; i++) { //iterate over rows 
+    const value = dataframe[i][col]; //retrieve value from column in row 
+    
+    //check is value is to be converted 
+    const num = Number(value);
+    
+    if (!isNaN(num) && isFinite(num)) { //if value is converted 
+      dataframe[i][col] = num; //assign back into dataframe
+      count += 1;
+    }
+  }
+  return count;
 }
 
 function flatten(dataframe) {
-  if (!Array.isArray(dataset) || dataset.some(Array.isArray)) return 0;
+  if (
+    !Array.isArray(dataframe) || 
+    !dataframe.every(row => //is every row containing one element
+      Array.isArray(row) && row.length === 1)) {
+        return []; //if not valid 2d array
+      }
+      return dataframe.map(row => row[0]); //iterate over rows and take first element
 }
 
 function loadCSV(csvFile, ignoreRows, ignoreCols) {
-
 }
 
 
