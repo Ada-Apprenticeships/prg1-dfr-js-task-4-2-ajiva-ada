@@ -5,7 +5,17 @@ function fileExists(filename) {
 }
 
 function validNumber(value) {
-  
+  //check if he value is a number and finite
+  if (typeof value === 'number') {
+    return !isNaN(value) && isFinite(value);
+  }
+  //check if valid numeric string that stays same when converted 
+  if (typeof value === 'string' && value.trim() !== '') {
+    const convertedValue = Number(value);
+    return !isNaN(convertedValue) && isFinite(convertedValue) && convertedValue.toString() === value.trim();
+  }
+
+  return false;
 }
 
 function dataDimensions(dataframe) {
@@ -21,37 +31,56 @@ function dataDimensions(dataframe) {
 }
 
 function findTotal(dataset) {
-  
+  if (!Array.isArray(dataset) || dataset.some(Array.isArray)) return 0; //1d array
+  return dataset.reduce((total, item) => { //calculate sum no.
+    const num = parseFloat(item); 
+    return !isNaN(num) ? total + num : total; //if valid then add to total 
+  }, 0);
 }
 
 function calculateMean(dataset) {
-  //check is data set is not empty array DOES NOT WORK
-  if (!Array.isArray(dataset) || dataset.length === 0) {
-    return false;
+  //check is data set is not empty array
+  if (!Array.isArray(dataset) || dataset.length === 0 || dataset.some(Array.isArray)) {
+    return 0;
   }
-    // Filter out invalid numbers, allowing strings that represent numbers
+    //filter invalid numbers allow strings
     const validNumbers = dataset
     .map(value => (typeof value === 'string' && !isNaN(value) ? parseFloat(value) : value))
     .filter(value => typeof value === 'number' && !isNaN(value));
-    // If there are no valid numbers, return false
+    //no valid numbers 
     if (validNumbers.length === 0) {
-      return false;
+      return 0;
   };
-  // Calculate the mean
+  //calculate average 
   const sum = validNumbers.reduce((acc, num) => acc + num, 0);
   return sum / validNumbers.length;
 }
 
 function calculateMedian(dataset) {
-
+   //filter invalid numbers allow strings
+   const validNumbers = dataset
+   .map(value => (typeof value === 'string' && !isNaN(value) ? parseFloat(value) : value))
+   .filter(value => typeof value === 'number' && !isNaN(value));
+   //no valid numbers 
+   if (validNumbers.length === 0) {
+     return 0;
+ };
+ validNumbers.sort((a, b) => a - b); //sort by value of numbers
+ const middleIndex = Math.floor(validNumbers.length / 2);
+ if (validNumbers.length % 2 === 0) { // for even no. elements
+  return (validNumbers[middleIndex - 1] + validNumbers[middleIndex]) / 2; //calculate median 
+} else {
+  //odd no.elements 
+  return validNumbers[middleIndex];
+}
 }
 
 function convertToNumber(dataframe, col) {
-
+  
 }
 
 function flatten(dataframe) {
-
+  if (!Array.isArray(dataset) || dataset.some(Array.isArray)) return 0;
 }
 
 function loadCSV(csvFile, ignoreRows, ignoreCols) {
