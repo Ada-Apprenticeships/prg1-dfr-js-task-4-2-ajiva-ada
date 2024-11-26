@@ -103,25 +103,47 @@ function flatten(dataframe) {
 }
 
 function loadCSV(csvFile, ignoreRows, ignoreCols) {
-  if (!fs.existsSync(csvFile)) { //checks if it exists already
+  if (!fileExists(csvFile)) {
     return [[], -1, -1];
   }
-  const data = fs.readFileSync(csvFile, 'utf-8').trim().split('\n').map(row => row.split(',')); //read through, trim and split 
-//calculate no rows and columns after removing 
-  const totalRows = data.length - ignoreRows.length;
-  const totalCols = data[0].length - ignoreCols.length; 
-//create final dataframe 
-  const dataframe = data
-    .filter((_, rowIndex) => !ignoreRows.includes(rowIndex))
-    .map(row => row.filter((_, colIndex) => !ignoreCols.includes(colIndex)));
+  let totalColumns = 0;
+  const newArray = [];
+  const delimiter = ',';
 
-  return [dataframe, totalRows, totalCols];
+  const data = fs.readFileSync(csvFile, { encoding: 'utf-8', flag: 'r'});
+  const rows = data.split(/\n/);
+
+  const totalRows = rows.length;
+
+  if (rows.length > 0) {
+    totalColumns = rows[0].split(delimiter).length;
+  }
+  for (let i = 0; i < rows.length; i++)
+    if (!ignoreRows.includes(i)) {
+      const columns = rows[i].split(delimiter)
+      const newRow = [];
+      for (let j = 0; j < columns.length; j++) {
+        if (!ignoreCols.includes(j)) {
+          newRow.push(columns[j].trim());
+        }
+      }
+      if (newRow.length > 0) {
+        newArray.push(newRow)
+      }
+    }
+    return [newArray, totalRows, totalColumns];
 }
-module.exports = loadCSV;
-
 
 function createSlice(dataframe, columnIndex, pattern, exportColumns = []) {
-
+  if (columnIndex < 0 || columnIndex >= dataframe[0].length) {
+    throw new Error('Invalid column index.');
+  }
+  const filteredRows = dataframe.filter(row => {
+    const value = row[columnIndex];
+    return pattern === '*' ? true : value === pattern;
+  });
+  const result = filteredRows.map(row => exportColumns.length === 0 ? row : exportColumns.map(index => row[index]));
+  return result;
 }
 
 module.exports = {
@@ -136,3 +158,4 @@ module.exports = {
   calculateMedian,
   createSlice,
 };
+
